@@ -3,18 +3,48 @@ import Layout from '../layouts/Layout.astro';
 ---
 <Layout title="Tim Bonnell">
 	<section>
-		<h1>Tim Bonnell</h1>
-		<h2>Currently building <a href='https://txtsquad.com' target="_blank">TxtSquad</a> 🚀</h2>
+		<div class='avatar-container'>
+			<img class='avatar' width="200" src="https://media-exp1.licdn.com/dms/image/C5603AQEU2KtAzoyOcQ/profile-displayphoto-shrink_400_400/0/1634229580685?e=1661990400&amp;v=beta&amp;t=PlisIVsNnN45bDQqbN8S5nobMYi0EOOeX2OIc63t_cM" height="200" alt="Tim Bonnell">
+		</div>
+		<div class='avatar-container'>
+			<h1>Tim Bonnell</h1>
+			<h2>Currently working on <a href='https://txtsquad.com' target="_blank">TxtSquad</a> 🚀</h2>
+		</div>
 	</section>
 </Layout>
 
 <style>
-	section{ 
+
+	.avatar {
+		border-radius: 50%;
+		border: 2px solid #fff;
+		box-shadow: 0 0 0 2px #fff;
+		max-width: 100px;
+		height: auto;
+	}
+
+	.avatar-container{
 		display: flex;
 		flex-direction: column;
+		min-height: 100%;
 		justify-content: center;
-		min-height: 50vh;
 	}
+	section{ 
+		display: flex;
+		min-height: 50vh;
+		column-gap: 30px;
+	}
+	@media only screen and (max-width: 500px) {
+        section {
+			flex-direction: column;
+			row-gap: 0px;
+			min-height: 100%;
+      }
+	  h1,h2{
+		text-align: center;
+	  }
+  }
+
 	h1 {
 		padding-top: 1em;
 		margin: 0;
