@@ -1,5 +1,5 @@
 ---
-import { Icon } from 'astro-icon'
+import { Icon } from 'astro-icon/components'
 export interface Props {
 	title: string;
 }
@@ -13,7 +13,6 @@ const { title } = Astro.props as Props;
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width">
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 	<title>{title}</title>
 </head>
 <body>
@@ -22,9 +21,9 @@ const { title } = Astro.props as Props;
   </main>
   <footer id="footer">
     <ul class="icons">
-      <li><a href="https://www.linkedin.com/in/timbonnell"><Icon class='footer-icon' pack="akar-icons" name="linkedin-fill" /><span class="label">LinkedIn</span></a></li>
-      <li><a href="https://github.com/timbonnell" class="icon fa-github"><Icon class='footer-icon' pack="akar-icons" name="github-fill" /><span class="label">GitHub</span></a></li>
-      <li><a href="mailto:tim@bonnell.dev" class="icon fa-envelope-o"><Icon class='footer-icon' pack="akar-icons" name="envelope" /><span class="label">Email</span></a></li>
+      <li><a href="https://www.linkedin.com/in/timbonnell"><Icon class='footer-icon' name="akar-icons:linkedin-fill" /><span class="label">LinkedIn</span></a></li>
+      <li><a href="https://github.com/timbonnell" class="icon fa-github"><Icon class='footer-icon' name="akar-icons:github-fill" /><span class="label">GitHub</span></a></li>
+      <li><a href="mailto:tim@bonnell.dev" class="icon fa-envelope-o"><Icon class='footer-icon' name="akar-icons:envelope" /><span class="label">Email</span></a></li>
     </ul>
   </footer>
  

@@ -1,17 +1,18 @@
 {
-  "name": "@example/basics",
+  "name": "timbonnell.ca",
   "version": "0.0.1",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
-  },
-  "devDependencies": {
-    "astro": "^1.0.0-beta.60"
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "dependencies": {
-    "astro-icon": "^0.7.1"
+    "@iconify-json/akar-icons": "^1.2.7",
+    "astro": "^6.4.2",
+    "astro-icon": "^1.1.5"
   }
 }

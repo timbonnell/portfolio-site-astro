@@ -1,10 +1,7 @@
 import { defineConfig } from "astro/config";
+import icon from "astro-icon";
 
 // https://astro.build/config
-export default {
-  vite: {
-    ssr: {
-      external: ["svgo"],
-    },
-  },
-};
+export default defineConfig({
+  integrations: [icon()],
+});
