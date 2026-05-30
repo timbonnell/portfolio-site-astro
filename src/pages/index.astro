@@ -142,6 +142,18 @@ import Layout from '../layouts/Layout.astro';
 			x = rect.left;
 			y = rect.top;
 
+			// Reserve the avatar's spot before it pops out of flow, so the
+			// name/heading beside it don't slide over to fill the gap.
+			const holder = avatar.parentElement;
+			if (holder) {
+				const hr = holder.getBoundingClientRect();
+				Object.assign(holder.style, {
+					width: `${hr.width}px`,
+					height: `${hr.height}px`,
+					flexShrink: '0',
+				});
+			}
+
 			avatar.classList.add('bouncing');
 			Object.assign(avatar.style, {
 				position: 'fixed',
@@ -167,6 +179,10 @@ import Layout from '../layouts/Layout.astro';
 			cancelAnimationFrame(raf);
 			bouncing = false;
 			avatar.classList.remove('bouncing');
+			const holder = avatar.parentElement;
+			if (holder) {
+				for (const prop of ['width', 'height', 'flex-shrink']) holder.style.removeProperty(prop);
+			}
 			for (const prop of ['position', 'margin', 'left', 'top', 'width', 'height', 'zIndex', 'borderColor', 'boxShadow']) {
 				avatar.style.removeProperty(prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase()));
 			}
