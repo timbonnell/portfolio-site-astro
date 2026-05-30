@@ -8,7 +8,7 @@ import Layout from '../layouts/Layout.astro';
 		</div>
 		<div class='avatar-container'>
 			<h1>Tim Bonnell</h1>
-			<h2>Currently working on <a href='https://txtsquad.com' target="_blank">TxtSquad</a> 🚀</h2>
+			<h2>Currently working on <a href='https://txtsquad.com' target="_blank">TxtSquad</a> <span class="rocket" role="button" tabindex="0" aria-label="Launch the rocket">🚀</span></h2>
 		</div>
 	</section>
 </Layout>
@@ -21,6 +21,14 @@ import Layout from '../layouts/Layout.astro';
 		box-shadow: 0 0 0 2px #fff;
 		max-width: 100px;
 		height: auto;
+		cursor: pointer;
+		user-select: none;
+		-webkit-user-drag: none;
+	}
+
+	.avatar.bouncing {
+		max-width: none;
+		transition: border-color 0.15s ease, box-shadow 0.15s ease;
 	}
 
 	.avatar-container{
@@ -56,4 +64,174 @@ import Layout from '../layouts/Layout.astro';
 		color: hsla(53, 100%, 52.0%, 0.956);
 	}
 
+	.rocket {
+		display: inline-block;
+		cursor: pointer;
+		user-select: none;
+		transform-origin: center;
+		will-change: transform;
+	}
+
+	.rocket.launching {
+		animation: blast-off 1.4s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+	}
+
+	@keyframes blast-off {
+		/* rumble on the launch pad */
+		0%   { transform: translate(0, 0) rotate(0deg) scale(1); }
+		8%   { transform: translate(-2px, 0) rotate(0deg) scale(1.05); }
+		16%  { transform: translate(2px, 0) rotate(0deg) scale(1.05); }
+		24%  { transform: translate(-2px, 1px) rotate(0deg) scale(1.08); }
+		32%  { transform: translate(2px, -1px) rotate(0deg) scale(1.08); }
+		/* aim straight up and crouch */
+		42%  { transform: translate(0, 3px) rotate(-45deg) scale(1.15); }
+		/* blast off the top of the page */
+		100% { transform: translate(0, -130vh) rotate(-45deg) scale(0.6); opacity: 0; }
+	}
+
 </style>
+
+<script>
+	// Classic "DVD logo" bounce: click the avatar to launch it, click it
+	// again to catch it. It changes color every time it hits an edge.
+	const avatar = document.querySelector('.avatar');
+
+	if (avatar instanceof HTMLImageElement) {
+		const COLORS = ['#ffd000', '#ff4d4d', '#4dd2ff', '#7CFC00', '#ff66cc', '#b388ff', '#ffffff'];
+		const SPEED = 260; // px per second
+
+		let raf = 0;
+		let bouncing = false;
+		let x = 0, y = 0, vx = 0, vy = 0, w = 0, h = 0, last = 0, colorIdx = 0;
+
+		const paintEdgeColor = () => {
+			colorIdx = (colorIdx + 1) % COLORS.length;
+			const c = COLORS[colorIdx];
+			avatar.style.borderColor = c;
+			avatar.style.boxShadow = `0 0 0 2px ${c}, 0 0 28px ${c}`;
+		};
+
+		const step = (t: number) => {
+			if (!last) last = t;
+			const dt = Math.min((t - last) / 1000, 0.05); // clamp across tab switches
+			last = t;
+
+			x += vx * dt;
+			y += vy * dt;
+
+			const maxX = window.innerWidth - w;
+			const maxY = window.innerHeight - h;
+			let hit = false;
+
+			if (x <= 0) { x = 0; vx = Math.abs(vx); hit = true; }
+			else if (x >= maxX) { x = maxX; vx = -Math.abs(vx); hit = true; }
+			if (y <= 0) { y = 0; vy = Math.abs(vy); hit = true; }
+			else if (y >= maxY) { y = maxY; vy = -Math.abs(vy); hit = true; }
+
+			if (hit) paintEdgeColor();
+
+			avatar.style.left = `${x}px`;
+			avatar.style.top = `${y}px`;
+			raf = requestAnimationFrame(step);
+		};
+
+		const launch = () => {
+			const rect = avatar.getBoundingClientRect();
+			w = rect.width;
+			h = rect.height;
+			x = rect.left;
+			y = rect.top;
+
+			avatar.classList.add('bouncing');
+			Object.assign(avatar.style, {
+				position: 'fixed',
+				margin: '0',
+				left: `${x}px`,
+				top: `${y}px`,
+				width: `${w}px`,
+				height: `${h}px`,
+				zIndex: '9999',
+			});
+
+			// Diagonal launch with a randomized direction.
+			const angle = (Math.random() * 0.5 + 0.25) * Math.PI; // 45°-ish off the axes
+			vx = Math.cos(angle) * SPEED * (Math.random() < 0.5 ? 1 : -1);
+			vy = Math.sin(angle) * SPEED * (Math.random() < 0.5 ? 1 : -1);
+
+			bouncing = true;
+			last = 0;
+			raf = requestAnimationFrame(step);
+		};
+
+		const reset = () => {
+			cancelAnimationFrame(raf);
+			bouncing = false;
+			avatar.classList.remove('bouncing');
+			for (const prop of ['position', 'margin', 'left', 'top', 'width', 'height', 'zIndex', 'borderColor', 'boxShadow']) {
+				avatar.style.removeProperty(prop.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase()));
+			}
+		};
+
+		avatar.addEventListener('click', () => {
+			bouncing ? reset() : launch();
+		});
+
+		window.addEventListener('resize', () => {
+			if (!bouncing) return;
+			x = Math.max(0, Math.min(x, window.innerWidth - w));
+			y = Math.max(0, Math.min(y, window.innerHeight - h));
+		});
+	}
+
+	// Click the rocket emoji to blast it off the top of the page.
+	const rocket = document.querySelector('.rocket');
+
+	if (rocket instanceof HTMLElement) {
+		let launching = false;
+
+		const blastOff = () => {
+			if (launching) return;
+			launching = true;
+
+			// Leave a puff of exhaust at the launch pad. Styled and animated
+			// inline (not via scoped CSS) because this node is created in JS and
+			// never receives Astro's scoped-style attribute.
+			const rect = rocket.getBoundingClientRect();
+			const smoke = document.createElement('div');
+			smoke.textContent = '💨';
+			Object.assign(smoke.style, {
+				position: 'fixed',
+				left: `${rect.left + rect.width / 2}px`,
+				top: `${rect.top + rect.height / 2}px`,
+				transform: 'translate(-50%, -50%)',
+				fontSize: '1.4em',
+				pointerEvents: 'none',
+				zIndex: '9998',
+			});
+			document.body.appendChild(smoke);
+			const puff = smoke.animate(
+				[
+					{ opacity: 0, transform: 'translate(-50%, -50%) scale(0.4)' },
+					{ opacity: 0.85, offset: 0.25 },
+					{ opacity: 0, transform: 'translate(-50%, 18px) scale(2.2)' },
+				],
+				{ duration: 900, easing: 'ease-out', fill: 'forwards' },
+			);
+			puff.onfinish = () => smoke.remove();
+
+			rocket.classList.add('launching');
+			rocket.addEventListener('animationend', () => {
+				rocket.classList.remove('launching');
+				launching = false;
+			}, { once: true });
+		};
+
+		rocket.addEventListener('click', blastOff);
+		rocket.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				blastOff();
+			}
+		});
+	}
+</script>
